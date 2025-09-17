@@ -5,7 +5,7 @@ import java.util.UUID;
 public class User {
     private final String userId;
     private final String username;
-    public User(String userId, String username) {
+    public User( String username) {
         this.userId = UUID.randomUUID().toString();;
         this.username = username;
     }

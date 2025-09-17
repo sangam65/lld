@@ -2,7 +2,7 @@ package TaskManager.entities;
 
 import TaskManager.enums.TaskPriority;
 import TaskManager.enums.TaskStatus;
-import TaskManager.exception.TaskNotFoundException;
+import TaskManager.exception.TaskException;
 
 import java.util.UUID;
 public class Task {
@@ -29,7 +29,7 @@ public class Task {
     }
     public void updateTaskStatus(TaskStatus taskStatus) {
         if(this.taskStatus.getValue()>taskStatus.getValue()){
-            throw new TaskNotFoundException("Task status can't go backwards");
+            throw new TaskException("Task status can't go backwards");
         }   
         this.taskStatus = taskStatus;
     }
@@ -42,7 +42,7 @@ public class Task {
     public User getassignee() {
         return assignee;
     }
-    public void setassignee(User assignee) {
+    public void setAssignee(User assignee) {
         this.assignee = assignee;
     }
 

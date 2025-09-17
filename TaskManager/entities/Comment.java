@@ -8,16 +8,21 @@ public class Comment {
     private final String message;
     private final User author;
     private final Date timestamp;
+    private final String taskId;
 
 
    
 
 
-    public Comment(String message,User author){
+    public String getTaskId() {
+        return taskId;
+    }
+    public Comment(String message,User author,String taskId){
         this.author=author;
         this.timestamp=new Date();
         this.commentId=UUID.randomUUID().toString();
         this.message=message;
+        this.taskId=taskId;
     }
      public String getCommentId() {
         return commentId;
