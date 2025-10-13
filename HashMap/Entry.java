@@ -1,29 +1,29 @@
 package HashMap;
+// package HashMap2;
 
-public class Entry<K,V> {
-    private K key;
-    private V value;
-    @SuppressWarnings("rawtypes")
-    private Entry next;
-    public Entry(K key,V value){
-        this.key=key;
-        this.value=value;
+// public class Entry<K,V> {
+//     private final K key;
+//     private V value;
+//     private Entry<K,V> next;
+//     public Entry(K key,V value){
+//         this.key=key;
+//         this.value=value;
+//         this.next=null;
+//     }
+//     public V getValue(){
+//         return value;
+//     }
+//     public K getKey(){
+//         return key;
+//     }
+//     public void setNext( Entry<K,V> next){
+//         this.next=next;
+//     }
 
-        this.next=null;
-    }
-
-    @SuppressWarnings("rawtypes")
-    public void setNext(Entry next){
-        this.next=next;
-    }
-    @SuppressWarnings("rawtypes")
-    public Entry getNext(){
-        return next;
-    }
-    public K getKey(){
-        return key;
-    }
-    public V getValue(){
-        return value;
-    }
-}
+//     public Entry<K,V> getNext(){
+//         return next;
+//     }
+//     public void setValue(V value){
+//         this.value=value;
+//     }
+// }

@@ -1,4 +1,4 @@
-package HashMap2.exception;
+package HashMap.exception;
 
 public class KeyNotFoundException extends RuntimeException{
     public KeyNotFoundException(String message){

@@ -1,8 +1,8 @@
-package HashMap2;
+package HashMap;
 
 
 
-import HashMap2.exception.KeyNotFoundException;
+import HashMap.exception.KeyNotFoundException;
 
 public class MyMap<K,V> {
     private final static int capacity=1<<4;
