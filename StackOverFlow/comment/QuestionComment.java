@@ -1,16 +1,16 @@
-package StackOverFlow.Content;
+package StackOverFlow.comment;
 
 import java.util.UUID;
 
 import StackOverFlow.entities.User;
 
-public class AnswerComment implements Comment {
+public class QuestionComment implements Comment {
     private String message;
     private final String commentId;
     private final User user;
     private final String contentId;
 
-    public AnswerComment(String message, User user, String contentId) {
+    public QuestionComment(String message, User user, String contentId) {
         this.commentId = UUID.randomUUID().toString();
         this.message = message;
         this.user = user;

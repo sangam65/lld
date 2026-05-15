@@ -4,9 +4,9 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.ConcurrentHashMap;
 
-import StackOverFlow.Content.AnswerComment;
-import StackOverFlow.Content.Comment;
-import StackOverFlow.Content.QuestionComment;
+import StackOverFlow.comment.AnswerComment;
+import StackOverFlow.comment.Comment;
+import StackOverFlow.comment.QuestionComment;
 import StackOverFlow.entities.Answer;
 import StackOverFlow.entities.Question;
 import StackOverFlow.entities.User;

@@ -1,4 +1,4 @@
-package StackOverFlow.Content;
+package StackOverFlow.comment;
 
 
 import StackOverFlow.entities.User;

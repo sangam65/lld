@@ -4,7 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
-import StackOverFlow.Content.Comment;
+import StackOverFlow.comment.Comment;
 import StackOverFlow.enums.Tag;
 
 public class Question {
