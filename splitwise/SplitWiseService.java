@@ -1,12 +1,16 @@
 package splitwise;
 
+import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 import splitwise.entites.Expense;
 import splitwise.entites.Group;
 import splitwise.entites.Split;
+import splitwise.entites.Transaction;
 import splitwise.entites.User;
 
 public class SplitWiseService {
@@ -68,6 +72,49 @@ public class SplitWiseService {
     public void showBalanceSheet(String userId) {
         User user = users.get(userId);
         user.getBalanceSheet().showBalances();
+    }
+    public List<Transaction> simplifyGroupDebts(String groupId) {
+        Group group = groups.get(groupId);
+        if (group == null) throw new IllegalArgumentException("Group not found");
+
+        // Calculate net balance for each member within the group context
+        Map<User, Double> netBalances = new HashMap<>();
+        for (User member : group.getMembers()) {
+            double balance = 0;
+            for(Map.Entry<User, Double> entry : member.getBalanceSheet().getBalances().entrySet()) {
+                // Consider only balances with other group members
+                if (group.getMembers().contains(entry.getKey())) {
+                    balance += entry.getValue();
+                }
+            }
+            netBalances.put(member, balance);
+        }
+
+        // Separate into creditors and debtors
+        List<Map.Entry<User, Double>> creditors = netBalances.entrySet().stream()
+                .filter(e -> e.getValue() > 0).collect(Collectors.toList());
+        List<Map.Entry<User, Double>> debtors = netBalances.entrySet().stream()
+                .filter(e -> e.getValue() < 0).collect(Collectors.toList());
+
+        creditors.sort(Map.Entry.comparingByValue(Comparator.reverseOrder()));
+        debtors.sort(Map.Entry.comparingByValue());
+
+        List<Transaction> transactions = new ArrayList<>();
+        int i = 0, j = 0;
+        while (i < creditors.size() && j < debtors.size()) {
+            Map.Entry<User, Double> creditor = creditors.get(i);
+            Map.Entry<User, Double> debtor = debtors.get(j);
+
+            double amountToSettle = Math.min(creditor.getValue(), -debtor.getValue());
+            transactions.add(new Transaction(debtor.getKey(), creditor.getKey(), amountToSettle));
+
+            creditor.setValue(creditor.getValue() - amountToSettle);
+            debtor.setValue(debtor.getValue() + amountToSettle);
+
+            if (Math.abs(creditor.getValue()) < 0.01) i++;
+            if (Math.abs(debtor.getValue()) < 0.01) j++;
+        }
+        return transactions;
     }
 
 }
