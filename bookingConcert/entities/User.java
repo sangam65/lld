@@ -15,7 +15,7 @@ public class User {
     public String getUsername() {
         return username;
     }
-    public List<Booking> getBookings() {
+    public  List<Booking> getBookings() {
         return bookings;
     }
     public User(String username) {
@@ -23,7 +23,7 @@ public class User {
         this.bookings=new ArrayList<>();
         this.userId=UUID.randomUUID().toString();
     }
-    public boolean addBooking(Booking booking){
+    public synchronized  boolean addBooking(Booking booking){
         bookings.add(booking);
         return true;
     }
