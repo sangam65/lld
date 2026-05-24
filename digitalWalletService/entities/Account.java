@@ -59,7 +59,7 @@ public class Account {
     public void changeAmount(double amount) {
         try {
         
-          if(!reentrantReadWriteLock.readLock().tryLock(2000, TimeUnit.MILLISECONDS)){
+          if(!reentrantReadWriteLock.writeLock().tryLock(2000, TimeUnit.MILLISECONDS)){
                  throw new WalletException("Please retry later");
                 
             }
@@ -78,7 +78,7 @@ public class Account {
       
         try {
             
-             if(!reentrantReadWriteLock.readLock().tryLock(2000, TimeUnit.MILLISECONDS)){
+             if(!reentrantReadWriteLock.writeLock().tryLock(2000, TimeUnit.MILLISECONDS)){
                  throw new WalletException("Please retry later");
                 
             }
