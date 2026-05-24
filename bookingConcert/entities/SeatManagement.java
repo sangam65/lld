@@ -1,6 +1,7 @@
 package bookingConcert.entities;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
@@ -33,7 +34,7 @@ public class SeatManagement {
         }
     }
 
-    public Booking bookSeats(String concertId, String userId, int totalSeats, SeatType seatType)
+    public  Booking bookSeats(String concertId, String userId, int totalSeats, SeatType seatType)
             throws InterruptedException, BookingConcertException {
         if (!reentrantReadWriteLock.writeLock().tryLock(2000, TimeUnit.MILLISECONDS)) {
             throw new BookingConcertException("Try again later");
@@ -45,7 +46,13 @@ public class SeatManagement {
             if (emptySeats.size() < totalSeats) {
                 throw new BookingConcertException("Only " + emptySeats.size() + " availabke under given type");
             }
-            Booking booking = new Booking(userId, LocalDateTime.now(), emptySeats, totalSeats * seatType.getPrice(),
+            List<Seat>bookedSeats=new ArrayList<>();
+            for(int i=0;i<totalSeats;i++){
+                emptySeats.get(i).setSeatStatus(SeatStatus.BOOKED);
+                bookedSeats.add(emptySeats.get(i));
+            }
+            
+            Booking booking = new Booking(userId, LocalDateTime.now(), bookedSeats, totalSeats * seatType.getPrice(),
                     concertId);
             return booking;
         } finally {

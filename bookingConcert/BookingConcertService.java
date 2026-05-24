@@ -48,7 +48,7 @@ public class BookingConcertService {
         }
         return concerts.get(concertName).getAvailableSeats();
     }
-    public Booking bookSeatsForConcert(String userName,int totalSeats,SeatType seatType,String concertName)throws InterruptedException,BookingConcertException{
+    public synchronized Booking bookSeatsForConcert(String userName,int totalSeats,SeatType seatType,String concertName)throws InterruptedException,BookingConcertException{
           if(!concerts.containsKey(concertName)){
             throw new BookingConcertException("Concert does not exist");
 
@@ -58,6 +58,9 @@ public class BookingConcertService {
         }
         User user=users.get(userName);
         Concert concert=concerts.get(concertName);
-        return concert.getSeatManagement().bookSeats(concert.getConcertId(), user.getUserId(), totalSeats, seatType);
+        Booking booking= concert.getSeatManagement().bookSeats(concert.getConcertId(), user.getUserId(), totalSeats, seatType);
+        user.addBooking(booking);
+        return booking;
     }
+    
 }
