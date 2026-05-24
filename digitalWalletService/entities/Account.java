@@ -38,57 +38,41 @@ public class Account {
         this.transactionHistories = new ArrayList<>();
     }
 
-    public double getAmount() {
-        try {
-          
-            if(!reentrantReadWriteLock.readLock().tryLock(2000, TimeUnit.MILLISECONDS)){
-                 throw new WalletException("Please retry later");
-                
-            }
-          return amount;
-        }
-
-        catch (InterruptedException e) {
+    public double getAmount() throws WalletException, InterruptedException {
+        if (!reentrantReadWriteLock.readLock().tryLock(2000, TimeUnit.MILLISECONDS)) {
             throw new WalletException("Please retry later");
-        } finally {
+        }
+        
+        try {
+            return amount;
+        }
+        finally {
             reentrantReadWriteLock.readLock().unlock();
         }
 
     }
 
-    public void changeAmount(double amount) {
+    public void changeAmount(double amount) throws WalletException, InterruptedException {
+        if (!reentrantReadWriteLock.writeLock().tryLock(2000, TimeUnit.MILLISECONDS)) {
+            throw new WalletException("Could not acquire write lock");
+        }
+
         try {
-        
-          if(!reentrantReadWriteLock.writeLock().tryLock(2000, TimeUnit.MILLISECONDS)){
-                 throw new WalletException("Please retry later");
-                
-            }
             this.amount = this.amount + amount;
-     
-        } catch (InterruptedException e) {
-            throw new WalletException("Please try again");
         } finally {
             reentrantReadWriteLock.writeLock().unlock();
         }
 
     }
 
-    public void addTransaction(TransactionHistory transactionHistory) {
+    public void addTransaction(TransactionHistory transactionHistory) throws WalletException, InterruptedException {
+        if (!reentrantReadWriteLock.writeLock().tryLock(2000, TimeUnit.MILLISECONDS)) {
+            throw new WalletException("Please retry later");
+        }
 
-      
         try {
-            
-             if(!reentrantReadWriteLock.writeLock().tryLock(2000, TimeUnit.MILLISECONDS)){
-                 throw new WalletException("Please retry later");
-                
-            }
-                  transactionHistories.add(transactionHistory);
-            
-        }
-        catch(Exception e){
-            throw new WalletException("Plase try again");
-        }
-        finally {
+            transactionHistories.add(transactionHistory);
+        } finally {
             reentrantReadWriteLock.writeLock().unlock(); // Add this
         }
 
