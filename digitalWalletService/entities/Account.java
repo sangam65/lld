@@ -40,11 +40,12 @@ public class Account {
 
     public double getAmount() {
         try {
-            boolean res=reentrantReadWriteLock.readLock().tryLock(2000, TimeUnit.MILLISECONDS);
-            if(res==true){
-                return amount;
+          
+            if(!reentrantReadWriteLock.readLock().tryLock(2000, TimeUnit.MILLISECONDS)){
+                 throw new WalletException("Please retry later");
+                
             }
-            throw new WalletException("Please retry later");
+          return amount;
         }
 
         catch (InterruptedException e) {
@@ -57,10 +58,13 @@ public class Account {
 
     public void changeAmount(double amount) {
         try {
-          boolean res=  reentrantReadWriteLock.writeLock().tryLock(2000, TimeUnit.MILLISECONDS);
-          if(res==true)
+        
+          if(!reentrantReadWriteLock.readLock().tryLock(2000, TimeUnit.MILLISECONDS)){
+                 throw new WalletException("Please retry later");
+                
+            }
             this.amount = this.amount + amount;
-        throw new WalletException("Please try again");
+     
         } catch (InterruptedException e) {
             throw new WalletException("Please try again");
         } finally {
@@ -73,11 +77,13 @@ public class Account {
 
       
         try {
-             boolean res= reentrantReadWriteLock.writeLock().tryLock(2000,TimeUnit.MILLISECONDS);
-             if(res==true){
+            
+             if(!reentrantReadWriteLock.readLock().tryLock(2000, TimeUnit.MILLISECONDS)){
+                 throw new WalletException("Please retry later");
+                
+            }
                   transactionHistories.add(transactionHistory);
-             }
-             throw new WalletException("Plase try again");
+            
         }
         catch(Exception e){
             throw new WalletException("Plase try again");
