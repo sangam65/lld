@@ -2,6 +2,7 @@ package digitalWalletService;
 
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import digitalWalletService.entities.Account;
@@ -51,6 +52,9 @@ public class DigitalWallet {
     }
     public synchronized void transferMoney(User user,Account from,Account to,double balance){
         try{
+            if(balance<0){
+                throw new Exception("balance can't be negative");
+            }
                 if(from.getAmount()>=balance){
                         from.changeAmount(-balance);
                         to.changeAmount(balance);
@@ -68,6 +72,15 @@ public class DigitalWallet {
         }
         
 
+    }
+    public List<TransactionHistory> getTransactionHistoryForUserAccount(User user,Account account){
+        if(account.getUser()!=user){
+            throw new RuntimeException("can't see other user's account history");
+        }
+        if(!users.containsKey(user.getUserId())||!accounts.containsKey(account.getAccountId())){
+            throw new RuntimeException("Invalid user or account");
+        }
+        return account.getTransactionHistory();
     }
 
 
