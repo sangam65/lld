@@ -7,10 +7,11 @@ import java.util.Map;
 
 import digitalWalletService.entities.Account;
 import digitalWalletService.entities.TransactionHistory;
+import digitalWalletService.entities.TransactionResult;
 import digitalWalletService.entities.User;
 import digitalWalletService.enums.TransactionStatus;
 import digitalWalletService.enums.TransactionType;
-import digitalWalletService.exception.AlreadyPresentException;
+import digitalWalletService.exception.WalletException;
 
 public class DigitalWallet {
     private final Map<String,User>users=new HashMap<>();
@@ -27,15 +28,15 @@ public class DigitalWallet {
         return digitalWallet;
     }
     
-    public  synchronized boolean registerUser(String username) throws AlreadyPresentException{
+    public  synchronized boolean registerUser(String username) throws WalletException{
         if(users.containsKey(username)){
-            throw new AlreadyPresentException("user already added in system");
+            throw new WalletException("user already added in system");
 
         }
         users.put(username,new User( username));    
         return true;
     }
-    public synchronized void addAccount(User user,Account account) throws RuntimeException{
+    public synchronized boolean addAccount(User user,Account account) throws RuntimeException{
         if(account.getUser()!=user){
             throw new RuntimeException("Account not found");
         }
@@ -43,32 +44,41 @@ public class DigitalWallet {
             throw new RuntimeException("user not present in system");
         }
         if(accounts.containsKey(account.getAccountId())){
-             throw new AlreadyPresentException("Account already added in system");
+             throw new WalletException("Account already added in system");
 
         }
         user.addAccount(account);
         accounts.put(account.getAccountId(),account);
+        return true;
 
     }
-    public synchronized void transferMoney(User user,Account from,Account to,double balance){
+    public synchronized TransactionResult transferMoney(User user,Account from,Account to,double balance){
         try{
             if(balance<0){
-                throw new Exception("balance can't be negative");
+                throw new WalletException("balance can't be negative");
             }
+   
                 if(from.getAmount()>=balance){
+                    
                         from.changeAmount(-balance);
                         to.changeAmount(balance);
-                        from.addTransaction(new TransactionHistory(from, to, balance,TransactionStatus.COMPLETED,TransactionType.SENT));
+                         TransactionHistory transactionHistory=new TransactionHistory( from, to, balance,TransactionStatus.COMPLETED,TransactionType.SENT);
+                        from.addTransaction(transactionHistory);
                         to.addTransaction(new TransactionHistory(from, to, balance,TransactionStatus.COMPLETED,TransactionType.RECEIVED));
+                      
+                        return new TransactionResult(transactionHistory.getTranscationId(), true, null, null);
                 }
                 else{
                     // from.addTransaction(new TransactionHistory( from, to, balance, null, null));
-                    throw new Exception("Money not sufficient in account");
+                    throw new WalletException("Money not sufficient in account");
                 }
 
         }
-        catch(Exception e){
-            from.addTransaction(new TransactionHistory( from, to, balance,TransactionStatus.FAILED,TransactionType.SENT));
+        catch(WalletException e){
+            TransactionHistory transactionHistory=new TransactionHistory( from, to, balance,TransactionStatus.FAILED,TransactionType.SENT);
+            from.addTransaction(transactionHistory);
+            TransactionResult transactionResult=new TransactionResult(transactionHistory.getTranscationId(), false, e.getMessage(), e);
+            return transactionResult;
         }
         
 
