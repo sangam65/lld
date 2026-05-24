@@ -1,29 +1,38 @@
 package digitalWalletService.entities;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.UUID;
 
 public class User {
     private final String userId;
     private final String name;
-      private List<Account>accounts;
-    public void setAccounts(Account account) {
-        this.accounts .add(account);
+    private HashMap<String,Account> accounts;
+    
+
+    public void addAccount(Account account) {
+        if(account.getUser()!=this)return;
+        // if(accounts.containsKey(account.getAccountId()))return;
+        accounts.putIfAbsent(account.getAccountId(),account);
     }
+
     public String getUserId() {
         return userId;
     }
-      public String getName() {
-          return name;
-      }
-      public List<Account> getAccounts() {
-          return accounts;
-      }
-    public User(String userId, String name) {
-        this.userId = userId;
-        this.name = name;
-        this.accounts=new ArrayList<>();
+
+    public String getName() {
+        return name;
     }
-    
-  
+
+    public List<Account> getAccounts() {
+        return new ArrayList<>(accounts.values());
+    }
+
+    public User( String name) {
+        this.userId = UUID.randomUUID().toString();
+        this.name = name;
+        this.accounts = new HashMap<>();
+    }
+
 }
