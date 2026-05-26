@@ -4,6 +4,7 @@ import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
 import courseRegisterationSystem.entities.Course;
+import courseRegisterationSystem.entities.EnrollmentResult;
 import courseRegisterationSystem.entities.Student;
 import courseRegisterationSystem.exception.CourseRegisterationException;
 
@@ -55,7 +56,7 @@ public class CourseRegisterationService {
         courses.remove(course.getCourseName());
         return true;
     }
-    public synchronized void addStudentInCourse(Student student,Course course)throws InterruptedException{
+    public synchronized EnrollmentResult addStudentInCourse(Student student,Course course)throws InterruptedException{
         if(!students.containsKey(student.getStudentName())){
             throw new CourseRegisterationException("Student not found alread added in system");
             
@@ -65,6 +66,8 @@ public class CourseRegisterationService {
 
         }
         course.addStudentInCourse(student);
+        EnrollmentResult enrollmentResult=new EnrollmentResult(course, student);
+        return enrollmentResult;
     }
 
 }

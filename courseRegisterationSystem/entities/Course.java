@@ -64,18 +64,13 @@ public class Course {
     }
 
     private void informNextStudent() throws InterruptedException {
-        if (!reentrantLock.writeLock().tryLock(2000, TimeUnit.MILLISECONDS)) {
-            throw new CourseRegisterationException("Try again later");
-        }
-        try {
+       
             if (waitingStudents.size() > 0) {
                 Student student = waitingStudents.firstEntry().getValue();
                 waitingStudents.remove(student.getStudentName());
                 student.informCourseEnrolled(this);
             }
-        } finally {
-            reentrantLock.writeLock().unlock();
-        }
+        
     }
 
     public void removeWaitingStudent(Student student) throws InterruptedException {
@@ -114,16 +109,16 @@ public class Course {
     }
 
     public boolean addStudentInCourse(Student student) throws InterruptedException {
-
+        if (!reentrantLock.writeLock().tryLock(2000, TimeUnit.MILLISECONDS)) {
+            throw new CourseRegisterationException("Try again later");
+        }
         if (enrolledStudnets.containsKey(student.getStudentName())
                 || waitingStudents.containsKey(student.getStudentName()))
             throw new CourseRegisterationException("Student has already taken this course ");
 
-        if (!reentrantLock.writeLock().tryLock(2000, TimeUnit.MILLISECONDS)) {
-            throw new CourseRegisterationException("Try again later");
-        }
+        
         try {
-            if (enrolledStudnets.size() == this.capacity) {
+            if (enrolledStudnets.size() <this.capacity) {
                 enrolledStudnets.put(student.getStudentName(), student);
                 student.courseTaken(this);
                 return true;
