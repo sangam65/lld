@@ -28,7 +28,7 @@ public class Student {
         this.studentId=UUID.randomUUID().toString();
         this.waiting=new ConcurrentHashMap<>();
     }
-    public boolean removeStudentFromCourses(){
+    public boolean removeStudentFromCourses() throws InterruptedException{
         for(Course course:courses.values()){
             course.removeStudent(this);
         }
@@ -51,6 +51,14 @@ public class Student {
        courses.remove(course.getCourseName());
        waiting.remove(course.getCourseName());
        return true;
+    }
+    public boolean courseTaken(Course course){
+        courses.putIfAbsent(course.getCourseName(), course);
+        return true;
+    }
+    public boolean courseWaiting(Course course){
+        waiting.putIfAbsent(course.getCourseName(), course);
+        return true;
     }
     
     

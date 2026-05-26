@@ -4,6 +4,10 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.locks.ReentrantReadWriteLock;
+
+import courseRegisterationSystem.exception.CourseRegisterationException;
 
 public class Course {
     private final String courseId;
@@ -11,6 +15,7 @@ public class Course {
     private final int capacity;
     private final Map<String, Student> enrolledStudnets;
     private final LinkedHashMap<String, Student> waitingStudents;
+    private final ReentrantReadWriteLock reentrantLock = new ReentrantReadWriteLock(true);
 
     public String getCourseId() {
         return courseId;
@@ -40,35 +45,97 @@ public class Course {
         this.waitingStudents = new LinkedHashMap<>();
 
     }
-    public void removeStudent(Student student){
-        if(enrolledStudnets.containsKey(student.getStudentName())){
-            enrolledStudnets.remove(student.getStudentName());
-            
-            informNextStudent();
+
+    public void removeStudent(Student student) throws InterruptedException, CourseRegisterationException {
+        if (!reentrantLock.writeLock().tryLock(2000, TimeUnit.MILLISECONDS)) {
+            throw new CourseRegisterationException("Try again later");
         }
-        waitingStudents.remove(student.getStudentName());
+        try {
+            if (enrolledStudnets.containsKey(student.getStudentName())) {
+                enrolledStudnets.remove(student.getStudentName());
+
+                informNextStudent();
+            }
+            waitingStudents.remove(student.getStudentName());
+        } finally {
+            reentrantLock.writeLock().unlock();
+        }
+
     }
-    private void informNextStudent(){
-        if(waitingStudents.size()>0){
-          Student student= waitingStudents.firstEntry().getValue();
-          waitingStudents.remove(student.getStudentName());
-          student.informCourseEnrolled(this);
+
+    private void informNextStudent() throws InterruptedException {
+        if (!reentrantLock.writeLock().tryLock(2000, TimeUnit.MILLISECONDS)) {
+            throw new CourseRegisterationException("Try again later");
+        }
+        try {
+            if (waitingStudents.size() > 0) {
+                Student student = waitingStudents.firstEntry().getValue();
+                waitingStudents.remove(student.getStudentName());
+                student.informCourseEnrolled(this);
+            }
+        } finally {
+            reentrantLock.writeLock().unlock();
         }
     }
-    public void removeWaitingStudent(Student student){
-        if(!waitingStudents.containsKey(student.getStudentName())){
-            return;
+
+    public void removeWaitingStudent(Student student) throws InterruptedException {
+        if (!reentrantLock.writeLock().tryLock(2000, TimeUnit.MILLISECONDS)) {
+            throw new CourseRegisterationException("Try again later");
         }
-        waitingStudents.remove(student.getStudentName());
+        try {
+            if (!waitingStudents.containsKey(student.getStudentName())) {
+                return;
+            }
+            waitingStudents.remove(student.getStudentName());
+        }
+
+        finally {
+            reentrantLock.writeLock().unlock();
+        }
     }
-    public boolean removeAllStudentsFromCourse(){
-        for(Student student:enrolledStudnets.values()){
-            student.removeFromCurrentCourse(this);
+
+    public boolean removeAllStudentsFromCourse() throws InterruptedException {
+        if (!reentrantLock.writeLock().tryLock(2000, TimeUnit.MILLISECONDS)) {
+            throw new CourseRegisterationException("Try again later");
         }
-        for(Student student:waitingStudents.values()){
-            student.removeFromCurrentCourse(this);
+        try {
+            for (Student student : enrolledStudnets.values()) {
+                student.removeFromCurrentCourse(this);
+            }
+            for (Student student : waitingStudents.values()) {
+                student.removeFromCurrentCourse(this);
+            }
+
+            return true;
+        } finally {
+            reentrantLock.writeLock().unlock();
         }
-        return true;
+
+    }
+
+    public boolean addStudentInCourse(Student student) throws InterruptedException {
+
+        if (enrolledStudnets.containsKey(student.getStudentName())
+                || waitingStudents.containsKey(student.getStudentName()))
+            throw new CourseRegisterationException("Student has already taken this course ");
+
+        if (!reentrantLock.writeLock().tryLock(2000, TimeUnit.MILLISECONDS)) {
+            throw new CourseRegisterationException("Try again later");
+        }
+        try {
+            if (enrolledStudnets.size() == this.capacity) {
+                enrolledStudnets.put(student.getStudentName(), student);
+                student.courseTaken(this);
+                return true;
+            } else {
+                waitingStudents.put(student.getStudentName(), student);
+                student.courseWaiting(this);
+                return false;
+            }
+        } finally {
+            reentrantLock.writeLock().unlock();
+        }
+
     }
 
 }

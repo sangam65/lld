@@ -37,7 +37,7 @@ public class CourseRegisterationService {
        students.put(studentName,student);
        return student;
     }
-    public boolean remove(Student student){
+    public synchronized boolean removeStudent(Student student)throws InterruptedException{
         if(!students.containsKey(student.getStudentName())){
             throw new CourseRegisterationException("Student not found alread added in system");
             
@@ -46,7 +46,7 @@ public class CourseRegisterationService {
         student.removeStudentFromCourses();
         return true;
     }
-    public boolean removeCourse(Course course){
+    public synchronized boolean removeCourse(Course course) throws InterruptedException{
         if(!courses.containsKey(course.getCourseName())){
             throw new CourseRegisterationException("Course not found in system");
 
@@ -54,6 +54,17 @@ public class CourseRegisterationService {
         course.removeAllStudentsFromCourse();
         courses.remove(course.getCourseName());
         return true;
+    }
+    public synchronized void addStudentInCourse(Student student,Course course)throws InterruptedException{
+        if(!students.containsKey(student.getStudentName())){
+            throw new CourseRegisterationException("Student not found alread added in system");
+            
+        }
+        if(!courses.containsKey(course.getCourseName())){
+            throw new CourseRegisterationException("Course not found in system");
+
+        }
+        course.addStudentInCourse(student);
     }
 
 }
