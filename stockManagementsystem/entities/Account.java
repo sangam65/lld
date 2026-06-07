@@ -26,13 +26,13 @@ public class Account {
         if(balance.compareTo(BigDecimal.ZERO)<0){
             throw new RuntimeException("Balance can't be zero");
         }
-        this.balance.add(balance);
+        this.balance=this.balance.add(balance);
     }
     public synchronized void deductBalance(BigDecimal balance){
         if(balance.compareTo(BigDecimal.ZERO)<0){
             throw new RuntimeException("Balance can't be zero");
         }
-        this.balance.subtract(balance);
+        this.balance=this.balance.subtract(balance);
     }
     public Account(User user,  String bankName, BigDecimal balance) {
         if(balance.compareTo(BigDecimal.ZERO)<0){

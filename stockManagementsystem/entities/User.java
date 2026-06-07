@@ -51,7 +51,7 @@ public class User {
             throw new StockManagementException("Account does not has sufficient balance");
         }
         account.deductBalance(balance);
-        this.balance.add(balance);
+       this.balance= this.balance.add(balance);
     }
 
     public synchronized void deductBalance(BigDecimal balance) {
